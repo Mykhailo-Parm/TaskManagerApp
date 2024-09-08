@@ -1,0 +1,13 @@
+package com.github.mykhailo_parm.taskmanager;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class TaskManagementAppApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(TaskManagementAppApplication.class, args);
+	}
+
+}
