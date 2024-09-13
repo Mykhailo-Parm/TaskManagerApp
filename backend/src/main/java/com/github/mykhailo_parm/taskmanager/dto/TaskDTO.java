@@ -17,5 +17,4 @@ public class TaskDTO {
     private LocalDateTime due;
     private LocalDateTime createdAt;
     private String userUrl;
-
 }
