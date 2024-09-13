@@ -8,6 +8,7 @@ import com.github.mykhailo_parm.taskmanager.repository.UserRepository;
 import com.github.mykhailo_parm.taskmanager.service.TaskService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,11 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         task.setUser(user);  // Associate task with user
+
+        // Set the createdAt field to the current time
+        if (task.getCreatedAt() == null) {
+            task.setCreatedAt(LocalDateTime.now());
+        }
 
         Task savedTask = taskRepository.save(task);
 
@@ -62,27 +68,24 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        taskRepository.deleteById(id);
+    public boolean isExists(Long userId, Long taskId) {
+        return taskRepository.findById(taskId).filter(t -> t.getUser().getId().equals(userId)).isPresent();
     }
 
     @Override
-    public boolean isExists(Long id) {
-        return taskRepository.existsById(id);
-    }
+    public Task partialUpdate(Long userId, Long taskId, Task task) {
+        task.setId(taskId);
 
-    @Override
-    public Task partialUpdate(Task task, Long id) {
-        task.setId(id);
-
-        return taskRepository.findById(id).map(existingTask -> {
-            Optional.ofNullable(task.getTitle()).ifPresent(existingTask::setTitle);
-            Optional.ofNullable(task.getDescription()).ifPresent(existingTask::setDescription);
-            Optional.ofNullable(task.getDue()).ifPresent(existingTask::setDue);
-            Optional.ofNullable(task.getCreatedAt()).ifPresent(existingTask::setCreatedAt);
-            Optional.ofNullable(task.getStatus()).ifPresent(existingTask::setStatus);
-            Optional.ofNullable(task.getUser()).ifPresent(existingTask::setUser);
-            return taskRepository.save(existingTask);
+        return taskRepository.findById(taskId)
+                .filter(t -> t.getUser().getId().equals(userId))
+                .map(existingTask -> {
+                    Optional.ofNullable(task.getTitle()).ifPresent(existingTask::setTitle);
+                    Optional.ofNullable(task.getDescription()).ifPresent(existingTask::setDescription);
+                    Optional.ofNullable(task.getDue()).ifPresent(existingTask::setDue);
+                    Optional.ofNullable(task.getCreatedAt()).ifPresent(existingTask::setCreatedAt);
+                    Optional.ofNullable(task.getStatus()).ifPresent(existingTask::setStatus);
+                    Optional.ofNullable(task.getUser()).ifPresent(existingTask::setUser);
+                    return taskRepository.save(existingTask);
         }).orElseThrow(() -> new RuntimeException("Task does not exist"));
     }
 }

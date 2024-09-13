@@ -36,9 +36,9 @@ public class UserController {
 
     @GetMapping(path = "/{id}")
     public ResponseEntity<UserDTO> getUser(@PathVariable("id") Long id) {
-        return userService.findById(id).map(user -> {
-            return new ResponseEntity<>(userMapper.mapTo(user), HttpStatus.OK);
-        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return userService.findById(id)
+                .map(user -> new ResponseEntity<>(userMapper.mapTo(user), HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
